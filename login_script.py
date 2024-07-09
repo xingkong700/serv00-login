@@ -29,7 +29,7 @@ async def login(username, password, panel):
         serviceName = 'ct8'
     try:
         if not browser:
-            browser = await launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
+            browser = await launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox', '--ignore-certificate-errors'])
 
         page = await browser.newPage()
         url = f'https://{panel}/login/?next=/'
@@ -75,6 +75,10 @@ async def main():
         username = account['username']
         password = account['password']
         panel = account['panel']
+
+        serviceName = 'serv00'
+        if 'ct8' in panel:
+            serviceName = 'ct8'
 
         is_logged_in = await login(username, password, panel)
 
