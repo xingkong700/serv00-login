@@ -24,12 +24,10 @@ async def login(username, password, panel):
     global browser
 
     page = None  # 确保 page 在任何情况下都被定义
-    serviceName = 'serv00'
-    if 'ct8' in panel:
-        serviceName = 'ct8'
+    serviceName = 'ct8' if 'ct8' in panel else 'serv00'	
     try:
         if not browser:
-            browser = await launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox', '--ignore-certificate-errors'])
+            browser = await launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
 
         page = await browser.newPage()
         url = f'https://{panel}/login/?next=/'
@@ -75,10 +73,6 @@ async def main():
         username = account['username']
         password = account['password']
         panel = account['panel']
-
-        serviceName = 'serv00'
-        if 'ct8' in panel:
-            serviceName = 'ct8'
 
         is_logged_in = await login(username, password, panel)
 
