@@ -67,41 +67,35 @@ async def login(username, password, panel):
             await page.close()
 
 async def main():
-    global message
-    message = 'serv00&ct8自动化脚本运行\n'
-
-    try:
-        async with aiofiles.open('accounts.json', mode='r', encoding='utf-8') as f:
-            accounts_json = await f.read()
-        accounts = json.loads(accounts_json)
-    except Exception as e:
-        print(f'读取 accounts.json 文件时出错: {e}')
-        return
+    async with aiofiles.open('accounts.json', mode='r', encoding='utf-8') as f:
+        accounts_json = await f.read()
+    accounts = json.loads(accounts_json)
 
     for account in accounts:
         username = account['username']
         password = account['password']
         panel = account['panel']
 
-        serviceName = 'ct8' if 'ct8' in panel else 'serv00'
+        serviceName = 'serv00'
+        if 'ct8' in panel:
+            serviceName = 'ct8'
+
         is_logged_in = await login(username, password, panel)
 
         if is_logged_in:
             now_utc = format_to_iso(datetime.utcnow())
             now_beijing = format_to_iso(datetime.utcnow() + timedelta(hours=8))
             success_message = f'{serviceName}账号 {username} 于北京时间 {now_beijing}（UTC时间 {now_utc}）登录成功！'
-            message += success_message + '\n'
+
             print(success_message)
+            send_telegram_message(success_message)
         else:
-            message += f'{serviceName}账号 {username} 登录失败，请检查{serviceName}账号和密码是否正确。\n'
             print(f'{serviceName}账号 {username} 登录失败，请检查{serviceName}账号和密码是否正确。')
 
         delay = random.randint(1000, 8000)
         await delay_time(delay)
-        
-    message += f'所有{serviceName}账号登录完成！'
-    await send_telegram_message(message)
-    print(f'所有{serviceName}账号登录完成！')
+
+    print('所有{serviceName}账号登录完成！')
 
 async def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
